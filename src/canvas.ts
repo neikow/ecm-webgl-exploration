@@ -31,8 +31,8 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controls: HTMLFormE
 
   const gl = canvas.getContext('webgl2')!
 
-  const vertexShaderSource = await getVertexShader('noise')
-  const fragmentShaderSource = await getFragmentShader('noise')
+  const vertexShaderSource = await getVertexShader('2d-noise')
+  const fragmentShaderSource = await getFragmentShader('2d-noise')
 
   const program = createProgram(
     gl,
