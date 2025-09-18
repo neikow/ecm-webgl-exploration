@@ -5,8 +5,8 @@ import { getFragmentShader, getVertexShader } from './utils/shaders.ts'
 export async function setupCanvas(canvas: HTMLCanvasElement, controls: HTMLFormElement) {
   const gl = canvas.getContext('webgl2')!
 
-  const vertexShaderSource = await getVertexShader('noise')
-  const fragmentShaderSource = await getFragmentShader('noise')
+  const vertexShaderSource = await getVertexShader('hello_world')
+  const fragmentShaderSource = await getFragmentShader('hello_world')
 
   const program = createProgram(
     gl,
