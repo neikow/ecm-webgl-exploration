@@ -38,13 +38,13 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
             <label for='color1' class='fieldset-label'>
               Color 1
             </label>
-            <input id='color1' type='color'  name='color1' />
+            <input id='color1' type='color' name='color1' />
           </div>
           <div class='fieldset'>
             <label for='color2' class='fieldset-label'>
               Color 2
             </label>
-            <input id='color2' type='color' name='color2' />
+            <input id='color2' type='color' name='color2' value='#ffffff' />
           </div>
         </div>
       </form>
