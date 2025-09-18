@@ -1,6 +1,6 @@
 import Stats from 'stats.js'
 
-export function setupCanvas(canvas: HTMLCanvasElement, controls: HTMLFormElement) {
+export async function setupCanvas(canvas: HTMLCanvasElement, controls: HTMLFormElement) {
   const ctx = canvas.getContext('2d')!
 
   const stats = new Stats()
