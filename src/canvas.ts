@@ -1,64 +1,62 @@
-import Stats from 'stats.js'
+import { resizeCanvasToDisplaySize } from './utils/canvas.ts'
+import { createFragmentShader, createProgram, createVertexShader } from './utils/gl.ts'
+import { getFragmentShader, getVertexShader } from './utils/shaders.ts'
 
 export async function setupCanvas(canvas: HTMLCanvasElement, controls: HTMLFormElement) {
-  const ctx = canvas.getContext('2d')!
+  const gl = canvas.getContext('webgl2')!
 
-  const stats = new Stats()
-  stats.showPanel(0) // 0: fps, 1: ms, 2: mb, 3+: custom
-  document.body.appendChild(stats.dom)
+  const vertexShaderSource = await getVertexShader('hello_world')
+  const fragmentShaderSource = await getFragmentShader('hello_world')
 
-  controls.addEventListener('input', () => {
-    // Handle control changes here
-  })
+  const program = createProgram(
+    gl,
+    createVertexShader(gl, vertexShaderSource),
+    createFragmentShader(gl, fragmentShaderSource),
+  )!
 
-  const updateCanvasSize = () => {
-    canvas.width = window.innerWidth * devicePixelRatio
-    canvas.height = window.innerHeight * devicePixelRatio
-    ctx.scale(devicePixelRatio, devicePixelRatio)
-  }
+  const positionAttributeLocation = gl.getAttribLocation(program, 'a_position')
+  const positionBuffer = gl.createBuffer()
+  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
 
-  function clearCanvas() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-    ctx.fillStyle = '#232331'
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
-  }
+  const positions = [
+    0,
+    0,
+    0,
+    0.5,
+    0.7,
+    0,
+  ]
 
-  function drawWhiteSquareOnGrayBackground(x: number, y: number) {
-    ctx.beginPath()
-    ctx.arc((canvas.width / devicePixelRatio + x) / 2, (canvas.height / devicePixelRatio + y) / 2, 80, 0, 2 * Math.PI)
-    ctx.fillStyle = '#ffffff'
-    ctx.fill()
-  }
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW)
 
-  let t = 0
-  let lastTime: DOMHighResTimeStamp = 0
-  let currentAnimationFrame = 0
+  const vao = gl.createVertexArray()
+  gl.bindVertexArray(vao)
+  gl.enableVertexAttribArray(positionAttributeLocation)
 
-  function draw(currentTime: DOMHighResTimeStamp) {
-    clearCanvas()
+  const size = 2 // 2 components per iteration
+  const type = gl.FLOAT // the data is 32bit floats
+  const normalize = false // don't normalize the data
+  const stride = 0 // 0 = move forward size * sizeof(type) each iteration to get the next position
+  const offset = 0 // start at the beginning of the buffer
+  gl.vertexAttribPointer(
+    positionAttributeLocation,
+    size,
+    type,
+    normalize,
+    stride,
+    offset,
+  )
 
-    const dT = currentTime - lastTime
-    lastTime = currentTime
+  resizeCanvasToDisplaySize(gl.canvas)
 
-    stats.begin()
+  gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
+  gl.clearColor(0, 0, 0, 0)
+  gl.clear(gl.COLOR_BUFFER_BIT)
+  gl.useProgram(program)
+  gl.bindVertexArray(vao)
 
-    const x = Math.cos(t) * 500 / devicePixelRatio
-    const y = Math.sin(t) * 500 / devicePixelRatio
-
-    drawWhiteSquareOnGrayBackground(x, y)
-
-    stats.end()
-
-    t += dT * 0.001
-    currentAnimationFrame = requestAnimationFrame(draw)
-  }
-
-  window.addEventListener('resize', () => {
-    cancelAnimationFrame(currentAnimationFrame)
-    updateCanvasSize()
-    draw(performance.now())
-  })
-
-  updateCanvasSize()
-  draw(performance.now())
+  const primitiveType = gl.TRIANGLES
+  const arrayOffset = 0
+  const count = 3
+  gl.drawArrays(primitiveType, arrayOffset, count)
 }
