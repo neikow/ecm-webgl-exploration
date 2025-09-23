@@ -37,7 +37,6 @@ export function compileShaderWithSources(source: string, sources: Record<string,
   let currentLine = 0
 
   for (const imp of imports) {
-    // Add lines before the import
     while (currentLine < imp.startLine) {
       compiledSource += `${lines[currentLine]}\n`
       currentLine++
@@ -48,17 +47,13 @@ export function compileShaderWithSources(source: string, sources: Record<string,
       throw new Error(`Imported file not found: ${imp.fileName}`)
     }
 
-    // Here you would typically load the imported file content.
-    // For this example, we'll just insert a placeholder comment.
     compiledSource += `// Begin import: ${imp.fileName}\n`
     compiledSource += `${importedContent}\n`
     compiledSource += `// End import: ${imp.fileName}\n`
 
-    // Skip the import line
     currentLine = imp.endLine + 1
   }
 
-  // Add remaining lines after the last import
   while (currentLine < lines.length) {
     compiledSource += lines[currentLine]
     if (currentLine < lines.length - 1) {
