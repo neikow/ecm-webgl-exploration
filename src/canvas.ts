@@ -1,46 +1,20 @@
+import { Artist } from './utils/artist.ts'
 import { resizeCanvasToDisplaySize } from './utils/canvas.ts'
-import { createFragmentShader, createProgram, createVertexShader } from './utils/gl.ts'
+import { Controls } from './utils/controls.ts'
 import { getFragmentShader, getVertexShader } from './utils/shaders.ts'
 
-export async function setupCanvas(canvas: HTMLCanvasElement, controls: HTMLFormElement) {
-  function getControlValueFloat(name: string, defaultValue: number) {
-    const element = controls.elements.namedItem(name) as HTMLInputElement
-    if (element.type === 'checkbox') {
-      return element.checked ? 1 : 0
-    }
-    if (element.type === 'color') {
-      throw new Error('Color type not supported for float value')
-    }
-    return element ? Number.parseFloat(element.value) : defaultValue
-  }
-
-  function getControlValueColor(name: string) {
-    const element = controls.elements.namedItem(name) as HTMLInputElement
-    if (!element) {
-      throw new Error('Element not found')
-    }
-    if (element.type === 'color') {
-      const hex = element.value
-      const r = Number.parseInt(hex.slice(1, 3), 16) / 255
-      const g = Number.parseInt(hex.slice(3, 5), 16) / 255
-      const b = Number.parseInt(hex.slice(5, 7), 16) / 255
-      return [r, g, b]
-    }
-    throw new Error('Not a color input')
-  }
+export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLFormElement) {
+  const controls = new Controls(controlsForm)
 
   const gl = canvas.getContext('webgl2')!
 
   const vertexShaderSource = await getVertexShader('2d-noise')
   const fragmentShaderSource = await getFragmentShader('2d-noise')
 
-  const program = createProgram(
-    gl,
-    createVertexShader(gl, vertexShaderSource),
-    createFragmentShader(gl, fragmentShaderSource),
-  )!
+  const artist = new Artist(gl, vertexShaderSource, fragmentShaderSource)
 
-  const positionAttributeLocation = gl.getAttribLocation(program, 'a_position')
+  const positionAttributeLocation = gl.getAttribLocation(artist.program, 'a_position')
+
   const positionBuffer = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
 
@@ -84,47 +58,56 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controls: HTMLFormE
     offset,
   )
 
-  const noiseMultiplierPosition = gl.getUniformLocation(program, 'u_noiseMultiplier')
-  const positionOffsetLocation = gl.getUniformLocation(program, 'u_positionOffset')
-  const color1Location = gl.getUniformLocation(program, 'u_color1')
-  const color2Location = gl.getUniformLocation(program, 'u_color2')
-
   function draw() {
     resizeCanvasToDisplaySize(gl.canvas)
 
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
     gl.clearColor(0, 0, 0, 0)
     gl.clear(gl.COLOR_BUFFER_BIT)
-    gl.useProgram(program)
+    gl.useProgram(artist.program)
     gl.bindVertexArray(vao)
 
     const primitiveType = gl.TRIANGLES
     const arrayOffset = 0
     const count = 6
 
-    const [r1, g1, b1] = getControlValueColor('color1')
-    const [r2, g2, b2] = getControlValueColor('color2')
-
-    gl.uniform3f(color1Location, r1, g1, b1)
-    gl.uniform3f(color2Location, r2, g2, b2)
-
-    gl.uniform2f(
-      positionOffsetLocation,
-      (getControlValueFloat('posOffsetX', 0.5) * 2 - 1) * 10,
-      (getControlValueFloat('posOffsetY', 0.5) * 2 - 1) * 10,
+    artist.setUniform(
+      '3f',
+      'u_color1',
+      ...controls.getColor('color1'),
+    )
+    artist.setUniform(
+      '3f',
+      'u_color2',
+      ...controls.getColor('color2'),
     )
 
-    gl.uniform2f(
-      noiseMultiplierPosition,
-      getControlValueFloat('noiseMulX', 0.5) * 30,
-      getControlValueFloat('noiseMulY', 0.5) * 40,
+    artist.setUniform(
+      '2f',
+      'u_resolution',
+      gl.canvas.width,
+      gl.canvas.height,
+    )
+
+    artist.setUniform(
+      '2f',
+      'u_positionOffset',
+      (controls.getFloat('posOffsetX', 0.5) * 2 - 1) * 10,
+      (controls.getFloat('posOffsetY', 0.5) * 2 - 1) * 10,
+    )
+
+    artist.setUniform(
+      '2f',
+      'u_noiseMultiplier',
+      controls.getFloat('noiseMulX', 0.5) * 30,
+      controls.getFloat('noiseMulY', 0.5) * 40,
     )
 
     gl.drawArrays(primitiveType, arrayOffset, count)
   }
 
   window.addEventListener('resize', draw)
-  controls.addEventListener('input', draw)
+  controls.addEventListener('change', draw)
 
   draw()
 }
