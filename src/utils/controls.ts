@@ -35,7 +35,10 @@ export class Controls {
         const step = Number.parseFloat(element.step) || 0.01
         const steps = Math.floor((max - min) / step)
         const randomStep = Math.floor(Math.random() * (steps + 1))
-        element.value = (min + randomStep * step).toString()
+
+        const newValue = Number.parseFloat(element.value) + (min + randomStep * step) * 0.1 * (Math.random() < 0.5 ? -1 : 1)
+
+        element.value = newValue.toString()
       }
       else if (element.type === 'color') {
         const r = Math.floor(Math.random() * 256)
