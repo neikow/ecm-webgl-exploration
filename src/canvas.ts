@@ -6,7 +6,46 @@ import { getCachedCreatePlane } from './utils/plane.ts'
 import { getFragmentShader, getVertexShader } from './utils/shaders.ts'
 
 export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLFormElement) {
-  const controls = new Controls(controlsForm)
+  const controls = new Controls(controlsForm, [
+    {
+      label: 'Plane',
+      fields: [
+        { type: 'range', label: 'Subdivisions', name: 'subdivisions', initialValue: 100, min: 1, max: 200, step: 1 },
+        { type: 'range', label: 'Plane Scale X', name: 'planeScaleX', initialValue: 30, min: 1, max: 100, step: 1 },
+        { type: 'range', label: 'Plane Scale Y', name: 'planeScaleY', initialValue: 30, min: 1, max: 100, step: 1 },
+      ],
+    },
+    {
+      label: 'Camera',
+      fields: [
+        { type: 'range', label: 'Field of View (°)', name: 'fov', initialValue: 90, min: 0.5, max: 180, step: 0.5 },
+        { type: 'range', label: 'Near plane', name: 'near', initialValue: 5, min: 1, max: 50, step: 1 },
+        { type: 'range', label: 'Far plane', name: 'far', initialValue: 30, min: 1, max: 50, step: 1 },
+        { type: 'range', label: 'Camera X position', name: 'camX', initialValue: 5, min: -10, max: 10, step: 0.1 },
+        { type: 'range', label: 'Camera Y position', name: 'camY', initialValue: 5, min: -10, max: 10, step: 0.1 },
+        { type: 'range', label: 'Camera Z position', name: 'camZ', initialValue: 10, min: -20, max: 20, step: 0.1 },
+      ],
+    },
+    {
+      label: 'Terrain',
+      fields: [
+        { type: 'group', flex: 'row', fields: [
+          { type: 'color', label: 'Color 1', name: 'color1', initialValue: '#000000' },
+          { type: 'color', label: 'Color 2', name: 'color2', initialValue: '#ffffff' },
+        ] },
+      ],
+    },
+    {
+      label: 'Noise',
+      fields: [
+        { type: 'range', label: 'Noise position offset X', name: 'posOffsetX', initialValue: 0, min: -1, max: 1, step: 0.01 },
+        { type: 'range', label: 'Noise position offset Y', name: 'posOffsetY', initialValue: 0, min: -1, max: 1, step: 0.01 },
+        { type: 'range', label: 'Noise multiplier X', name: 'noiseMulX', initialValue: 0.2, min: 0, max: 1, step: 0.01 },
+        { type: 'range', label: 'Noise multiplier Y', name: 'noiseMulY', initialValue: 0.2, min: 0, max: 1, step: 0.01 },
+        { type: 'range', label: 'Noise height', name: 'noiseHeight', initialValue: 0.8, min: 0, max: 5, step: 0.01 },
+      ],
+    },
+  ])
 
   const gl = canvas.getContext('webgl2')!
 

@@ -3,15 +3,50 @@ export interface ControlsEventHandlers {
   change: () => void
 }
 
+export interface ControlFieldBase {
+  type: string
+  name: string
+  label: string
+}
+
+export interface ControlFieldRange extends ControlFieldBase {
+  type: 'range'
+  initialValue: number
+  min: number
+  max: number
+  step: number
+}
+
+export interface ControlFieldColor extends ControlFieldBase {
+  type: 'color'
+  initialValue: string
+}
+
+export type ControlField = ControlFieldRange | ControlFieldColor
+
+export interface ControlFieldGroup {
+  type: 'group'
+  flex: 'row' | 'column'
+  fields: ControlField[]
+}
+
+export interface ControlFieldSection {
+  label: string
+  fields: (ControlField | ControlFieldGroup)[]
+}
+
 export class Controls {
   form: HTMLFormElement
+
+  sections: ControlFieldSection[]
 
   eventListeners: {
     [E in keyof ControlsEventHandlers]: Set<ControlsEventHandlers[E]>
   }
 
-  constructor(form: HTMLFormElement) {
+  constructor(form: HTMLFormElement, sections: ControlFieldSection[]) {
     this.form = form
+    this.sections = sections
     this.eventListeners = {
       change: new Set(),
     }
@@ -19,6 +54,49 @@ export class Controls {
     this.form.addEventListener('input', () => {
       this.eventListeners.change?.forEach(listener => listener())
     })
+
+    this.addToDOM()
+  }
+
+  private addToDOM() {
+    this.form.innerHTML = ''
+
+    this.sections.forEach((section) => {
+      const sectionEl = document.createElement('div')
+      sectionEl.className = 'collapse border-base-300 border'
+      sectionEl.innerHTML = `
+        <input type="checkbox" />
+        <div class="collapse-title font-semibold">${section.label}</div>
+        <div class="collapse-content text-sm">
+          ${(section.fields.map((field) => {
+            if (field.type === 'group') {
+              return `
+                <div class='flex ${field.flex === 'row' ? 'flex-row' : 'flex-col'} gap-2'>
+                  ${field.fields.map(f => this.renderField(f)).join('')}
+                </div>
+              `
+            }
+            else {
+              return this.renderField(field)
+            }
+          }).join(''))}
+        </div>
+      `
+
+      this.form.appendChild(sectionEl)
+    })
+  }
+
+  private renderField(field: ControlField) {
+    if (field.type === 'range') {
+      return createRangeSlider(field.name, field.label, field.initialValue, field.min, field.max, field.step)
+    }
+    else if (field.type === 'color') {
+      return createColorPicker(field.name, field.label, field.initialValue)
+    }
+    else {
+      throw new Error('Unsupported field type', { cause: 'unknown field type' })
+    }
   }
 
   randomize() {
