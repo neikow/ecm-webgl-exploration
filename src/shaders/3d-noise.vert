@@ -57,7 +57,7 @@ void main() {
         normal.z
     ));
 
-    gl_Position = u_viewProjection * mat4( // <- model matrix
+    gl_Position = u_viewProjection * mat4(
         u_planeScale.x, 0.0, 0.0, 0.0,
         0.0, u_planeScale.y, 0.0, 0.0,
         0.0, 0.0, 1.0, 0.0,

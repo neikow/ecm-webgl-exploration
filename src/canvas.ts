@@ -26,8 +26,8 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
       label: 'Camera',
       fields: [
         { type: 'range', label: 'Field of View (°)', name: 'fov', initialValue: 90, min: 0.5, max: 180, step: 0.5 },
-        { type: 'range', label: 'Near plane', name: 'near', initialValue: 5, min: 1, max: 50, step: 1 },
-        { type: 'range', label: 'Far plane', name: 'far', initialValue: 30, min: 1, max: 50, step: 1 },
+        { type: 'range', label: 'Near plane', name: 'near', initialValue: 5, min: 0.1, max: 10, step: 0.1 },
+        { type: 'range', label: 'Far plane', name: 'far', initialValue: 30, min: 1, max: 100, step: 1 },
         { type: 'range', label: 'Camera X position', name: 'camX', initialValue: 5, min: -10, max: 10, step: 0.1 },
         { type: 'range', label: 'Camera Y position', name: 'camY', initialValue: 5, min: -10, max: 10, step: 0.1 },
         { type: 'range', label: 'Camera Z position', name: 'camZ', initialValue: 10, min: -20, max: 20, step: 0.1 },
@@ -207,6 +207,10 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
   document.getElementById('randomize')?.addEventListener('click', () => {
     controls.randomize()
     draw()
+  })
+
+  document.getElementById('delete')?.addEventListener('click', () => {
+    controls.reset()
   })
 
   draw()

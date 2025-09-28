@@ -86,6 +86,17 @@ export class Controls<T extends readonly ControlFieldSection[]> {
     })
 
     this.addToDOM()
+
+    for (const element of this.form.elements) {
+      const inputElement = element as HTMLInputElement
+      if (!inputElement.name)
+        continue
+
+      element.addEventListener('input', (ev) => {
+        const input = ev.target as HTMLInputElement
+        localStorage.setItem(`control-${input.name}`, input.value)
+      })
+    }
   }
 
   private addToDOM() {
@@ -118,14 +129,31 @@ export class Controls<T extends readonly ControlFieldSection[]> {
   }
 
   private renderField(field: ControlField) {
+    const initialValue = localStorage.getItem(`control-${field.name}`) ?? field.initialValue.toString()
+
     if (field.type === 'range') {
-      return createRangeSlider(field.name, field.label, field.initialValue, field.min, field.max, field.step)
+      return createRangeSlider(field.name, field.label, initialValue, field.min, field.max, field.step)
     }
     else if (field.type === 'color') {
-      return createColorPicker(field.name, field.label, field.initialValue)
+      return createColorPicker(field.name, field.label, initialValue)
     }
     else {
       throw new Error('Unsupported field type', { cause: 'unknown field type' })
+    }
+  }
+
+  reset() {
+    for (const element of this.form.elements) {
+      const inputElement = element as HTMLInputElement
+      if (!inputElement.name)
+        continue
+
+      const field = this.sections.flatMap(s => s.fields).flatMap(f => f.type === 'group' ? f.fields : f).find(f => f.name === inputElement.name) as ControlField | undefined
+      if (!field)
+        continue
+
+      inputElement.value = field.initialValue.toString()
+      inputElement.dispatchEvent(new Event('input', { bubbles: true }))
     }
   }
 
@@ -157,6 +185,8 @@ export class Controls<T extends readonly ControlFieldSection[]> {
       else {
         throw new Error('Unsupported input type for randomization', { cause: element.type })
       }
+
+      element.dispatchEvent(new Event('input', { bubbles: true }))
     }
   }
 
@@ -205,7 +235,7 @@ export class Controls<T extends readonly ControlFieldSection[]> {
   }
 }
 
-export function createRangeSlider(name: string, label: string, initialValue = 0.5, min = 0, max = 1, step = 0.01): string {
+export function createRangeSlider(name: string, label: string, initialValue = '0.5', min = 0, max = 1, step = 0.01): string {
   return `
     <div class='fieldset'>
       <label for='${name}' class='fieldset-label'>
