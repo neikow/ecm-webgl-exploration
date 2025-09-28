@@ -40,12 +40,12 @@ void main() {
         ) * 0.125
     ) * u_noiseHeight;
 
-    gl_Position = mat4(
+    gl_Position = u_viewProjection * mat4( // <- model matrix
         u_planeScale.x, 0.0, 0.0, 0.0,
         0.0, u_planeScale.y, 0.0, 0.0,
         0.0, 0.0, 1.0, 0.0,
         0.0, 0.0, 0.0, 1.0
-    ) * u_viewProjection * vec4(
+    ) * vec4(
         a_position.xy,
         z,
         1
