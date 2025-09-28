@@ -1,7 +1,6 @@
 /** Utility class to manage HTML form controls and retrieve their values. */
 export interface ControlsEventHandlers {
   change: () => void
-  test: (x: number) => void
 }
 
 export class Controls {
@@ -15,12 +14,39 @@ export class Controls {
     this.form = form
     this.eventListeners = {
       change: new Set(),
-      test: new Set(),
     }
 
     this.form.addEventListener('input', () => {
       this.eventListeners.change?.forEach(listener => listener())
     })
+  }
+
+  randomize() {
+    const elements = this.form.elements
+    for (let i = 0; i < elements.length; i++) {
+      const element = elements.item(i) as HTMLInputElement
+
+      if (!element.name)
+        continue
+
+      if (element.type === 'range') {
+        const min = Number.parseFloat(element.min) || 0
+        const max = Number.parseFloat(element.max) || 1
+        const step = Number.parseFloat(element.step) || 0.01
+        const steps = Math.floor((max - min) / step)
+        const randomStep = Math.floor(Math.random() * (steps + 1))
+        element.value = (min + randomStep * step).toString()
+      }
+      else if (element.type === 'color') {
+        const r = Math.floor(Math.random() * 256)
+        const g = Math.floor(Math.random() * 256)
+        const b = Math.floor(Math.random() * 256)
+        element.value = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
+      }
+      else {
+        throw new Error('Unsupported input type for randomization', { cause: element.type })
+      }
+    }
   }
 
   private getNumber(name: string, defaultValue: number, parser: (value: string) => number): number {

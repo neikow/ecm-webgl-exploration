@@ -144,5 +144,10 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
   window.addEventListener('resize', draw)
   controls.addEventListener('change', draw)
 
+  document.getElementById('randomize')?.addEventListener('click', () => {
+    controls.randomize()
+    draw()
+  })
+
   draw()
 }
