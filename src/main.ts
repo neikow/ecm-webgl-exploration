@@ -15,8 +15,8 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
           <div class="collapse-title font-semibold">Camera</div>
           <div class="collapse-content text-sm">
             ${createRangeSlider('fov', 'Field of View (°)', 80, 0.5, 180, 0.5)}
-            ${createRangeSlider('near', 'Near plane', 5, 1, 500, 1)}
-            ${createRangeSlider('far', 'Far plane', 100, 1, 500, 1)}
+            ${createRangeSlider('near', 'Near plane', 5, 1, 50, 1)}
+            ${createRangeSlider('far', 'Far plane', 30, 1, 50, 1)}
             ${createRangeSlider('camX', 'Camera X position', 5, -10, 10, 0.1)}
             ${createRangeSlider('camY', 'Camera Y position', 5, -10, 10, 0.1)}
             ${createRangeSlider('camZ', 'Camera Z position', 5, -10, 10, 0.1)}
