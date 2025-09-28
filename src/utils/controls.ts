@@ -23,7 +23,7 @@ export class Controls {
     })
   }
 
-  getFloat(name: string, defaultValue: number): number {
+  private getNumber(name: string, defaultValue: number, parser: (value: string) => number): number {
     const element = this.form.elements.namedItem(name) as HTMLInputElement
     if (element.type === 'checkbox') {
       return element.checked ? 1 : 0
@@ -31,7 +31,15 @@ export class Controls {
     if (element.type === 'color') {
       throw new Error('Color type not supported for float value')
     }
-    return element ? Number.parseFloat(element.value) : defaultValue
+    return element ? parser(element.value) : defaultValue
+  }
+
+  getFloat(name: string, defaultValue: number): number {
+    return this.getNumber(name, defaultValue, Number.parseFloat)
+  }
+
+  getInt(name: string, defaultValue: number): number {
+    return this.getNumber(name, defaultValue, Number.parseInt)
   }
 
   getColor(name: string): [number, number, number] {

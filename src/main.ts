@@ -12,6 +12,13 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
       <form id='settings' class='mt-2 flex flex-col gap-2'>
         <div class="collapse bg-base-100 border-base-300 border">
           <input type="checkbox" />
+          <div class="collapse-title font-semibold">Plane</div>
+          <div class="collapse-content text-sm">
+            ${createRangeSlider('subdivisions', 'Subdivisions', 40, 1, 180, 1)}
+          </div>
+        </div>
+        <div class="collapse bg-base-100 border-base-300 border">
+          <input type="checkbox" />
           <div class="collapse-title font-semibold">Camera</div>
           <div class="collapse-content text-sm">
             ${createRangeSlider('fov', 'Field of View (°)', 80, 0.5, 180, 0.5)}

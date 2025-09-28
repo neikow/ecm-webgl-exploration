@@ -2,6 +2,7 @@ import { mat4 } from 'gl-matrix'
 import { Artist } from './utils/artist.ts'
 import { resizeCanvasToDisplaySize } from './utils/canvas.ts'
 import { Controls } from './utils/controls.ts'
+import { getCachedCreatePlane } from './utils/plane.ts'
 import { getFragmentShader, getVertexShader } from './utils/shaders.ts'
 
 export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLFormElement) {
@@ -19,33 +20,15 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
   const positionBuffer = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
 
-  const positions = [
-    -1,
-    -1,
-
-    -1,
-    1,
-
-    1,
-    1,
-
-    1,
-    -1,
-
-    -1,
-    -1,
-
-    1,
-    1,
-  ]
-
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW)
+  const indexBuffer = gl.createBuffer()
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer)
 
   const vao = gl.createVertexArray()
   gl.bindVertexArray(vao)
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer)
   gl.enableVertexAttribArray(positionAttributeLocation)
 
-  const size = 2 // 2 components per iteration
+  const size = 3 // 2 components per iteration
   const type = gl.FLOAT // the data is 32bit floats
   const normalize = false // don't normalize the data
   const stride = 0 // 0 = move forward size * sizeof(type) each iteration to get the next position
@@ -59,8 +42,19 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
     offset,
   )
 
+  const createPlane = getCachedCreatePlane()
+
   function draw() {
+    // eslint-disable-next-line no-console
+    console.log('draw')
+
     resizeCanvasToDisplaySize(gl.canvas)
+
+    const subdivisions = controls.getInt('subdivisions', 40)
+    const { positions, indices } = createPlane(subdivisions)
+
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW)
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW)
 
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
     gl.clearColor(0, 0, 0, 0)
@@ -70,7 +64,6 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
 
     const primitiveType = gl.TRIANGLES
     const arrayOffset = 0
-    const count = 6
 
     const fov = controls.getFloat('fov', 60) * (Math.PI / 180)
     const aspect = gl.canvas.width / gl.canvas.height
@@ -127,7 +120,7 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
       controls.getFloat('noiseMulY', 0.5) * 40,
     )
 
-    gl.drawArrays(primitiveType, arrayOffset, count)
+    gl.drawElements(primitiveType, indices.length, gl.UNSIGNED_SHORT, arrayOffset)
   }
 
   window.addEventListener('resize', draw)
