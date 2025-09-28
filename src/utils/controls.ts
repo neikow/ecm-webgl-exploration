@@ -67,3 +67,24 @@ export class Controls {
     listeners.delete(listener)
   }
 }
+
+export function createRangeSlider(name: string, label: string, initialValue = 0.5, min = 0, max = 1, step = 0.01): string {
+  return `
+    <div class='fieldset'>
+      <label for='${name}' class='fieldset-label'>
+        ${label}
+      </label>
+      <input id='${name}' type='range' name='${name}' value='${initialValue}' min='${min}' max='${max}' step='${step}' />
+    </div>`
+}
+
+export function createColorPicker(name: string, label: string, initialValue = '#000000'): string {
+  return `
+    <div class='fieldset'>
+      <label for='${name}' class='fieldset-label'>
+        ${label}
+      </label>
+      <input id='${name}' value='${initialValue}' type='color' name='${name}' />
+    </div>
+    `
+}

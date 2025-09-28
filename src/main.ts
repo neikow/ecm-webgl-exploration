@@ -1,5 +1,5 @@
 import { setupCanvas } from './canvas.ts'
-import { createRangeSlider } from './controls/rangeSlider.ts'
+import { createColorPicker, createRangeSlider } from './utils/controls.ts'
 import './style.css'
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
@@ -36,18 +36,8 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
           <div class="collapse-title font-semibold">Terrain</div>
           <div class="collapse-content text-sm">
             <div class='flex gap-2'>
-              <div class='fieldset'>
-                <label for='color1' class='fieldset-label'>
-                  Color 1
-                </label>
-                <input id='color1' type='color' name='color1' />
-              </div>
-              <div class='fieldset'>
-                <label for='color2' class='fieldset-label'>
-                  Color 2
-                </label>
-                <input id='color2' type='color' name='color2' value='#ffffff' />
-              </div>
+              ${createColorPicker('color1', 'Color 1', '#000000')}
+              ${createColorPicker('color2', 'Color 2', '#ffffff')}
             </div>
           </div>
         </div>
