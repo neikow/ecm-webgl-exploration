@@ -50,7 +50,7 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
         { type: 'range', label: 'Noise position offset Y', name: 'posOffsetY', initialValue: 0, min: -1, max: 1, step: 0.01 },
         { type: 'range', label: 'Noise multiplier X', name: 'noiseMulX', initialValue: 0.2, min: 0, max: 1, step: 0.01 },
         { type: 'range', label: 'Noise multiplier Y', name: 'noiseMulY', initialValue: 0.2, min: 0, max: 1, step: 0.01 },
-        { type: 'range', label: 'Noise height', name: 'noiseHeight', initialValue: 0.8, min: 0, max: 5, step: 0.01 },
+        { type: 'range', label: 'Noise height', name: 'noiseHeight', initialValue: 5, min: 0, max: 10, step: 0.01 },
       ],
     },
   ])
