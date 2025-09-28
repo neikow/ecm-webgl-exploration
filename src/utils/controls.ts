@@ -35,16 +35,46 @@ export interface ControlFieldSection {
   fields: (ControlField | ControlFieldGroup)[]
 }
 
-export class Controls {
+type ExtractFieldNames<T extends readonly ControlFieldSection[]>
+  = T[number]['fields'] extends (infer F)[]
+    ? F extends ControlFieldGroup
+      ? F['fields'][number]['name']
+      : F extends ControlField
+        ? F['name']
+        : never
+    : never
+
+type FieldTypeMap<T extends readonly ControlFieldSection[]> = {
+  [K in ExtractFieldNames<T>]:
+  K extends infer N
+    ? N extends string
+      ? T[number]['fields'] extends (infer F)[]
+        ? F extends ControlFieldGroup
+          ? F['fields'][number] extends { name: N, type: infer FT }
+            ? FT extends 'color' ? [number, number, number]
+              : FT extends 'range' ? number
+                : never
+            : never
+          : F extends { name: N, type: infer FT }
+            ? FT extends 'color' ? [number, number, number]
+              : FT extends 'range' ? number
+                : never
+            : never
+        : never
+      : never
+    : never
+}
+
+export class Controls<T extends readonly ControlFieldSection[]> {
   form: HTMLFormElement
 
-  sections: ControlFieldSection[]
+  sections: Readonly<ControlFieldSection[]>
 
   eventListeners: {
     [E in keyof ControlsEventHandlers]: Set<ControlsEventHandlers[E]>
   }
 
-  constructor(form: HTMLFormElement, sections: ControlFieldSection[]) {
+  constructor(form: HTMLFormElement, sections: Readonly<T>) {
     this.form = form
     this.sections = sections
     this.eventListeners = {
@@ -130,7 +160,7 @@ export class Controls {
     }
   }
 
-  private getNumber(name: string, defaultValue: number, parser: (value: string) => number): number {
+  private getNumber<K extends keyof FieldTypeMap<T>>(name: K, defaultValue: number, parser: (value: string) => number): number {
     const element = this.form.elements.namedItem(name) as HTMLInputElement
     if (element.type === 'checkbox') {
       return element.checked ? 1 : 0
@@ -141,15 +171,15 @@ export class Controls {
     return element ? parser(element.value) : defaultValue
   }
 
-  getFloat(name: string, defaultValue: number): number {
+  getFloat<K extends keyof FieldTypeMap<T>>(name: K, defaultValue: number): number {
     return this.getNumber(name, defaultValue, Number.parseFloat)
   }
 
-  getInt(name: string, defaultValue: number): number {
+  getInt<K extends keyof FieldTypeMap<T>>(name: K, defaultValue: number): number {
     return this.getNumber(name, defaultValue, Number.parseInt)
   }
 
-  getColor(name: string): [number, number, number] {
+  getColor<K extends keyof FieldTypeMap<T>>(name: K): [number, number, number] {
     const element = this.form.elements.namedItem(name) as HTMLInputElement
     if (!element) {
       throw new Error('Element not found')

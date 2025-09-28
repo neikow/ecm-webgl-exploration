@@ -52,7 +52,7 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
         { type: 'range', label: 'Noise height', name: 'noiseHeight', initialValue: 5, min: 0, max: 10, step: 0.01 },
       ],
     },
-  ])
+  ] as const)
 
   const gl = canvas.getContext('webgl2')!
 
