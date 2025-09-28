@@ -1,3 +1,4 @@
+import type { mat2, mat3, mat4 } from 'gl-matrix'
 import { createFragmentShader, createProgram, createVertexShader } from './gl.ts'
 
 export interface UniformArguments {
@@ -9,9 +10,9 @@ export interface UniformArguments {
   '2i': [number, number]
   '3i': [number, number, number]
   '4i': [number, number, number, number]
-  'Matrix2fv': [boolean, Float32List]
-  'Matrix3fv': [boolean, Float32List]
-  'Matrix4fv': [boolean, Float32List]
+  'Matrix2fv': [boolean, mat2]
+  'Matrix3fv': [boolean, mat3]
+  'Matrix4fv': [boolean, mat4]
 }
 
 export type UniformType = keyof UniformArguments
