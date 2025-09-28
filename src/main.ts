@@ -14,12 +14,12 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
           <input type="checkbox" />
           <div class="collapse-title font-semibold">Camera</div>
           <div class="collapse-content text-sm">
-            ${createRangeSlider('fov', 'Field of View (°)', 0.5, 180, 0.5)}
-            ${createRangeSlider('near', 'Near plane', 0.01, 10, 0.01)}
-            ${createRangeSlider('far', 'Far plane', 10, 1000, 1)}
-            ${createRangeSlider('camX', 'Camera X position', -10, 10, 0.1)}
-            ${createRangeSlider('camY', 'Camera Y position', -10, 10, 0.1)}
-            ${createRangeSlider('camZ', 'Camera Z position', -10, 10, 0.1)}
+            ${createRangeSlider('fov', 'Field of View (°)', 80, 0.5, 180, 0.5)}
+            ${createRangeSlider('near', 'Near plane', 5, 1, 500, 1)}
+            ${createRangeSlider('far', 'Far plane', 100, 1, 500, 1)}
+            ${createRangeSlider('camX', 'Camera X position', 5, -10, 10, 0.1)}
+            ${createRangeSlider('camY', 'Camera Y position', 5, -10, 10, 0.1)}
+            ${createRangeSlider('camZ', 'Camera Z position', 5, -10, 10, 0.1)}
           </div>
         </div>
         <div class="collapse bg-base-100 border-base-300 border">

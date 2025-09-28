@@ -1,3 +1,4 @@
+import { mat4 } from 'gl-matrix'
 import { Artist } from './utils/artist.ts'
 import { resizeCanvasToDisplaySize } from './utils/canvas.ts'
 import { Controls } from './utils/controls.ts'
@@ -8,8 +9,8 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
 
   const gl = canvas.getContext('webgl2')!
 
-  const vertexShaderSource = await getVertexShader('2d-noise')
-  const fragmentShaderSource = await getFragmentShader('2d-noise')
+  const vertexShaderSource = await getVertexShader('3d-noise')
+  const fragmentShaderSource = await getFragmentShader('3d-noise')
 
   const artist = new Artist(gl, vertexShaderSource, fragmentShaderSource)
 
@@ -70,6 +71,29 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
     const primitiveType = gl.TRIANGLES
     const arrayOffset = 0
     const count = 6
+
+    const fov = controls.getFloat('fov', 60) * (Math.PI / 180)
+    const aspect = gl.canvas.width / gl.canvas.height
+    const near = controls.getFloat('near', 0.1)
+    const far = controls.getFloat('far', 100)
+    const eyePosition = [
+      controls.getFloat('camX', 0),
+      controls.getFloat('camY', 0),
+      controls.getFloat('camZ', 5),
+    ]
+    const target = [0, 0, 0]
+    const up = [0, 0, 1]
+
+    const projection = mat4.create()
+    mat4.perspective(projection, fov, aspect, near, far)
+
+    const view = mat4.create()
+    mat4.lookAt(view, eyePosition, target, up)
+
+    const viewProjection = mat4.create()
+    mat4.multiply(viewProjection, projection, view)
+
+    artist.setUniform('Matrix4fv', 'u_viewProjection', false, viewProjection)
 
     artist.setUniform(
       '3f',

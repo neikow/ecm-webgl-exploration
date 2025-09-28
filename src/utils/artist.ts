@@ -9,6 +9,9 @@ export interface UniformArguments {
   '2i': [number, number]
   '3i': [number, number, number]
   '4i': [number, number, number, number]
+  'Matrix2fv': [boolean, Float32List]
+  'Matrix3fv': [boolean, Float32List]
+  'Matrix4fv': [boolean, Float32List]
 }
 
 export type UniformType = keyof UniformArguments
