@@ -124,10 +124,7 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controls: HTMLFormE
   }
 
   window.addEventListener('resize', draw)
-
-  controls.addEventListener('input', () => {
-    draw()
-  })
+  controls.addEventListener('input', draw)
 
   draw()
 }

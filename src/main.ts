@@ -1,4 +1,5 @@
 import { setupCanvas } from './canvas.ts'
+import { createRangeSlider } from './controls/rangeSlider.ts'
 import './style.css'
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
@@ -8,43 +9,41 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
       <h1 class='card-title'>
         Settings
       </h1>
-      <form id='settings'>
-        <div class='fieldset'>
-          <label for='posOffsetX' class='fieldset-label'>
-            Pos Offset X
-          </label>
-          <input id='posOffsetX' type='range' class='range' name='posOffsetX' min='0' max='1' step='0.01' />
-        </div>
-        <div class='fieldset'>
-          <label for='posOffsetY' class='fieldset-label'>
-            Pos Offset Y
-          </label>
-          <input id='posOffsetY' type='range' class='range' name='posOffsetY' min='0' max='1' step='0.01' />
-        </div>
-        <div class='fieldset'>
-          <label for='noiseMulX' class='fieldset-label'>
-            Noise Mul X
-          </label>
-          <input id='noiseMulX' type='range' class='range' name='noiseMulX' min='0' max='1' step='0.01' />
-        </div>
-        <div class='fieldset'>
-          <label for='noiseMulY' class='fieldset-label'>
-            Noise Mul Y
-          </label>
-          <input id='noiseMulY' type='range' class='range' name='noiseMulY' min='0' max='1' step='0.01' />
-        </div>
-        <div class='flex gap-2'>
-          <div class='fieldset'>
-            <label for='color1' class='fieldset-label'>
-              Color 1
-            </label>
-            <input id='color1' type='color' name='color1' />
+      <form id='settings' class='mt-2 flex flex-col gap-2'>
+        <div class="collapse bg-base-100 border-base-300 border">
+          <input type="checkbox" />
+          <div class="collapse-title font-semibold">Camera</div>
+          <div class="collapse-content text-sm">
+            ${createRangeSlider('fov', 'Field of View (°)', 0.5, 180, 0.5)}
+            ${createRangeSlider('near', 'Near plane', 0.01, 10, 0.01)}
+            ${createRangeSlider('far', 'Far plane', 10, 1000, 1)}
+            ${createRangeSlider('camX', 'Camera X position', -10, 10, 0.1)}
+            ${createRangeSlider('camY', 'Camera Y position', -10, 10, 0.1)}
+            ${createRangeSlider('camZ', 'Camera Z position', -10, 10, 0.1)}
           </div>
-          <div class='fieldset'>
-            <label for='color2' class='fieldset-label'>
-              Color 2
-            </label>
-            <input id='color2' type='color' name='color2' value='#ffffff' />
+        </div>
+        <div class="collapse bg-base-100 border-base-300 border">
+          <input type="checkbox" />
+          <div class="collapse-title font-semibold">Noise</div>
+          <div class="collapse-content text-sm">
+            ${createRangeSlider('posOffsetX', 'Noise position offset X')}
+            ${createRangeSlider('posOffsetY', 'Noise position offset Y')}
+            ${createRangeSlider('noiseMulX', 'Noise multiplier Y')}
+            ${createRangeSlider('noiseMulY', 'Noise multiplier Y')}
+            <div class='flex gap-2'>
+              <div class='fieldset'>
+                <label for='color1' class='fieldset-label'>
+                  Color 1
+                </label>
+                <input id='color1' type='color' name='color1' />
+              </div>
+              <div class='fieldset'>
+                <label for='color2' class='fieldset-label'>
+                  Color 2
+                </label>
+                <input id='color2' type='color' name='color2' value='#ffffff' />
+              </div>
+            </div>
           </div>
         </div>
       </form>
