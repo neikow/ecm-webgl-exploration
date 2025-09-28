@@ -16,6 +16,14 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
       ],
     },
     {
+      label: 'Light',
+      fields: [
+        { type: 'range', label: 'Light X direction', name: 'lightX', initialValue: 0, min: -1, max: 1, step: 0.1 },
+        { type: 'range', label: 'Light Y direction', name: 'lightY', initialValue: 0.4, min: -1, max: 1, step: 0.1 },
+        { type: 'range', label: 'Light Z direction', name: 'lightZ', initialValue: -1, min: -1, max: 1, step: 0.1 },
+      ],
+    },
+    {
       label: 'Camera',
       fields: [
         { type: 'range', label: 'Field of View (°)', name: 'fov', initialValue: 90, min: 0.5, max: 180, step: 0.5 },
@@ -137,6 +145,14 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
       'u_planeScale',
       controls.getFloat('planeScaleX', 10),
       controls.getFloat('planeScaleY', 10),
+    )
+
+    artist.setUniform(
+      '3f',
+      'u_lightDirection',
+      controls.getFloat('lightX', 0),
+      controls.getFloat('lightY', 0.4),
+      controls.getFloat('lightZ', -1),
     )
 
     artist.setUniform(
