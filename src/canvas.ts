@@ -18,9 +18,8 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
     {
       label: 'Light',
       fields: [
-        { type: 'range', label: 'Light X direction', name: 'lightX', initialValue: 0, min: -1, max: 1, step: 0.1 },
-        { type: 'range', label: 'Light Y direction', name: 'lightY', initialValue: 0.4, min: -1, max: 1, step: 0.1 },
-        { type: 'range', label: 'Light Z direction', name: 'lightZ', initialValue: -1, min: -1, max: 1, step: 0.1 },
+        { type: 'range', label: 'Azimuth', name: 'lightAzimuth', initialValue: 0, min: 0, max: 2 * 3.14, step: 0.01 },
+        { type: 'range', label: 'Elevation', name: 'lightElevation', initialValue: 3.14 / 4, min: 0, max: 3.14 / 2, step: 0.01 },
       ],
     },
     {
@@ -38,8 +37,8 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
       label: 'Terrain',
       fields: [
         { type: 'group', flex: 'row', fields: [
-          { type: 'color', label: 'Color 1', name: 'color1', initialValue: '#000000' },
-          { type: 'color', label: 'Color 2', name: 'color2', initialValue: '#ffffff' },
+          { type: 'color', label: 'Color 1', name: 'color1', initialValue: '#23af3a' },
+          { type: 'color', label: 'Color 2', name: 'color2', initialValue: '#198660' },
         ] },
       ],
     },
@@ -147,12 +146,18 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
       controls.getFloat('planeScaleY', 10),
     )
 
+    const lightAzimuth = controls.getFloat('lightAzimuth', 0)
+    const lightElevation = controls.getFloat('lightElevation', Math.PI / 4)
+    const lightX = Math.cos(lightAzimuth) * Math.cos(lightElevation)
+    const lightY = Math.sin(lightAzimuth) * Math.cos(lightElevation)
+    const lightZ = Math.sin(lightElevation)
+
     artist.setUniform(
       '3f',
       'u_lightDirection',
-      controls.getFloat('lightX', 0),
-      controls.getFloat('lightY', 0.4),
-      controls.getFloat('lightZ', -1),
+      lightX,
+      lightY,
+      lightZ,
     )
 
     artist.setUniform(
