@@ -19,7 +19,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
           <input type="checkbox" />
           <div class="collapse-title font-semibold">Plane</div>
           <div class="collapse-content text-sm">
-            ${createRangeSlider('subdivisions', 'Subdivisions', 40, 1, 180, 1)}
+            ${createRangeSlider('subdivisions', 'Subdivisions', 100, 1, 200, 1)}
             ${createRangeSlider('planeScaleX', 'Plane Scale X', 30, 1, 100, 1)}
             ${createRangeSlider('planeScaleY', 'Plane Scale Y', 30, 1, 100, 1)}
           </div>

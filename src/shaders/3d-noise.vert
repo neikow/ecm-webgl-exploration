@@ -15,11 +15,29 @@ void main() {
     float x = a_position.x;
     float y = a_position.y;
 
-    float z = cnoise(
-        vec2(
-            u_positionOffset.x + x * u_noiseMultiplier.x,
-            u_positionOffset.y + y * u_noiseMultiplier.y
-        )
+    float z = (
+        cnoise(
+            vec2(
+                u_positionOffset.x + x * u_noiseMultiplier.x,
+                u_positionOffset.y + y * u_noiseMultiplier.y
+            )
+        ) * 0.5
+        + cnoise(
+            vec2(
+                u_positionOffset.x * 2.0 + x * u_noiseMultiplier.x * 2.0,
+                u_positionOffset.y * 2.0 + y * u_noiseMultiplier.y * 2.0
+            )
+        ) * 0.25 + cnoise(
+            vec2(
+                u_positionOffset.x * 4.0 + x * u_noiseMultiplier.x * 4.0,
+                u_positionOffset.y * 4.0 + y * u_noiseMultiplier.y * 4.0
+            )
+        ) * 0.125 + cnoise(
+            vec2(
+                u_positionOffset.x * 8.0 + x * u_noiseMultiplier.x * 8.0,
+                u_positionOffset.y * 8.0 + y * u_noiseMultiplier.y * 8.0
+            )
+        ) * 0.125
     ) * u_noiseHeight;
 
     gl_Position = mat4(
