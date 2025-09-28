@@ -86,7 +86,25 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
     const viewProjection = mat4.create()
     mat4.multiply(viewProjection, projection, view)
 
-    artist.setUniform('Matrix4fv', 'u_viewProjection', false, viewProjection)
+    artist.setUniform(
+      'Matrix4fv',
+      'u_viewProjection',
+      false,
+      viewProjection,
+    )
+
+    artist.setUniform(
+      '2f',
+      'u_planeScale',
+      controls.getFloat('planeScaleX', 10),
+      controls.getFloat('planeScaleY', 10),
+    )
+
+    artist.setUniform(
+      '1f',
+      'u_noiseHeight',
+      controls.getFloat('noiseHeight', 0.1),
+    )
 
     artist.setUniform(
       '3f',
