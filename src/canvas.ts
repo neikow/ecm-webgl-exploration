@@ -63,6 +63,8 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
 
   const positionAttributeLocation = gl.getAttribLocation(artist.program, 'a_position')
 
+  gl.enable(gl.DEPTH_TEST)
+
   const positionBuffer = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
 
@@ -104,7 +106,8 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
 
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
     gl.clearColor(0, 0, 0, 0)
-    gl.clear(gl.COLOR_BUFFER_BIT)
+
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
     gl.useProgram(artist.program)
     gl.bindVertexArray(vao)
 

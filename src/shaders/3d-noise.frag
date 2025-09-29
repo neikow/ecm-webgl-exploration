@@ -13,7 +13,7 @@ uniform vec3 u_lightDirection;
 void main() {
     float diffuse = max(dot(normalize(v_normal), normalize(u_lightDirection)), 0.0);
 
-    vec3 baseColor = mix(u_color1, u_color2, v_position.z);
+    vec3 baseColor = mix(u_color1, u_color2, (1.0 + v_position.z) / 2.0);
 
     vec3 shaded = baseColor * (0.3 + 0.7 * diffuse);
 
