@@ -31,14 +31,16 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
         { type: 'range', label: 'Field of View (°)', name: 'fov', initialValue: 90, min: 0.5, max: 180, step: 0.5 },
         { type: 'range', label: 'Near plane', name: 'near', initialValue: 5, min: 0.1, max: 10, step: 0.1 },
         { type: 'range', label: 'Far plane', name: 'far', initialValue: 30, min: 1, max: 100, step: 1 },
-        { type: 'range', label: 'Camera X position', name: 'camX', initialValue: 5, min: -10, max: 10, step: 0.1 },
-        { type: 'range', label: 'Camera Y position', name: 'camY', initialValue: 5, min: -10, max: 10, step: 0.1 },
-        { type: 'range', label: 'Camera Z position', name: 'camZ', initialValue: 10, min: -20, max: 20, step: 0.1 },
+        { type: 'range', label: 'Camera X position', name: 'camX', initialValue: 5, min: -10, max: 20, step: 0.1 },
+        { type: 'range', label: 'Camera Y position', name: 'camY', initialValue: 5, min: -10, max: 20, step: 0.1 },
+        { type: 'range', label: 'Camera Z position', name: 'camZ', initialValue: 10, min: -20, max: 80, step: 0.1 },
       ],
     },
     {
       label: 'Terrain',
       fields: [
+        { type: 'range', label: 'Min height', name: 'minTerrainHeight', initialValue: 0, min: 0, max: 10, step: 0.1 },
+        { type: 'range', label: 'Max height', name: 'maxTerrainHeight', initialValue: 2, min: 0, max: 20, step: 0.1 },
         { type: 'group', flex: 'row', fields: [
           { type: 'color', label: 'Color 1', name: 'color1', initialValue: '#23af3a' },
           { type: 'color', label: 'Color 2', name: 'color2', initialValue: '#198660' },
@@ -52,14 +54,14 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
         const noiseOffsetY = 0
         const noiseFreqX = index === 0 ? 10 : 0
         const noiseFreqY = index === 0 ? 10 : 0
-        const noiseHeight = index === 0 ? 5 : 0
+        const noiseContribution = index === 0 ? 5 : 0
 
         return [
           { type: 'range', label: `Noise ${index + 1} offset X`, name: `noise${index + 1}OffsetX`, initialValue: noiseOffsetX, min: -1, max: 1, step: 0.01 },
           { type: 'range', label: `Noise ${index + 1} offset Y`, name: `noise${index + 1}OffsetY`, initialValue: noiseOffsetY, min: -1, max: 1, step: 0.01 },
           { type: 'range', label: `Noise ${index + 1} freq X`, name: `noise${index + 1}FreqX`, initialValue: noiseFreqX, min: 0, max: 20, step: 0.01 },
           { type: 'range', label: `Noise ${index + 1} freq Y`, name: `noise${index + 1}FreqY`, initialValue: noiseFreqY, min: 0, max: 20, step: 0.01 },
-          { type: 'range', label: `Noise ${index + 1} height`, name: `noise${index + 1}Height`, initialValue: noiseHeight, min: 0, max: 20, step: 0.01 },
+          { type: 'range', label: `Noise ${index + 1} contribution`, name: `noise${index + 1}Contribution`, initialValue: noiseContribution, min: 0, max: 20, step: 0.01 },
         ]
       }),
     },
@@ -195,6 +197,17 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
     )
 
     artist.setUniform(
+      '1f',
+      'u_minTerrainHeight',
+      controls.getFloat('minTerrainHeight', -2),
+    )
+    artist.setUniform(
+      '1f',
+      'u_maxTerrainHeight',
+      controls.getFloat('maxTerrainHeight', 2),
+    )
+
+    artist.setUniform(
       '1fv',
       'u_noises',
       new Float32Array(
@@ -204,7 +217,7 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
             controls.getFloat(`noise${index + 1}OffsetY`, 0),
             controls.getFloat(`noise${index + 1}FreqX`, 5),
             controls.getFloat(`noise${index + 1}FreqY`, 5),
-            controls.getFloat(`noise${index + 1}Height`, 0),
+            controls.getFloat(`noise${index + 1}Contribution`, 0),
           ]
         }),
       ),

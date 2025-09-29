@@ -9,7 +9,7 @@ out vec3 v_normal;
 struct NoiseParams {
     vec2 offset;
     vec2 frequency;
-    float height;
+    float contribution;
 };
 
 const int MAX_NUM_NOISES = 16;
@@ -17,17 +17,20 @@ const int NOISE_PARAMS_SIZE = 2 + 2 + 1; // vec2 + vec2 + float
 
 uniform float u_noises[MAX_NUM_NOISES * NOISE_PARAMS_SIZE];
 
+uniform float u_maxTerrainHeight;
+uniform float u_minTerrainHeight;
+
 uniform float u_normalEpsilon;
 uniform vec2 u_planeScale;
 uniform mat4 u_viewProjection;
 
-float createNoiseAtPosition(vec2 pos, NoiseParams params) {
+float createNoiseAtPosition(vec2 pos, NoiseParams params, float totalContribution) {
     return cnoise(
         vec2(
             pos.x * params.frequency.x + params.offset.x,
             pos.y * params.frequency.y + params.offset.y
         )
-    ) * params.height;
+    ) * params.contribution / totalContribution;
 }
 
 NoiseParams getNoise(int index) {
@@ -39,14 +42,23 @@ NoiseParams getNoise(int index) {
     );
 }
 
-float getHeight(vec2 pos) {
+float getNormalizedHeight(vec2 pos) {
     float height = 0.0;
+    float totalContribution = 0.0;
     for (int i = 0; i < MAX_NUM_NOISES; i++) {
         NoiseParams params = getNoise(i);
         if (params.frequency.x == 0.0 && params.frequency.y == 0.0) {
             break;
         }
-        height += createNoiseAtPosition(pos, params);
+        totalContribution += params.contribution;
+    }
+
+    for (int i = 0; i < MAX_NUM_NOISES; i++) {
+        NoiseParams params = getNoise(i);
+        if (params.frequency.x == 0.0 && params.frequency.y == 0.0) {
+            break;
+        }
+        height += createNoiseAtPosition(pos, params, totalContribution);
     }
     return height;
 }
@@ -55,10 +67,10 @@ void main() {
     float x = a_position.x;
     float y = a_position.y;
 
-    float z = getHeight(a_position.xy);
+    float z = getNormalizedHeight(a_position.xy);
 
-    float dX = (getHeight(vec2(x + u_normalEpsilon, y)) - z) / u_normalEpsilon;
-    float dY = (getHeight(vec2(x, y + u_normalEpsilon)) - z) / u_normalEpsilon;
+    float dX = (getNormalizedHeight(vec2(x + u_normalEpsilon, y)) - z) / u_normalEpsilon;
+    float dY = (getNormalizedHeight(vec2(x, y + u_normalEpsilon)) - z) / u_normalEpsilon;
 
     vec3 normal = normalize(vec3(-dX, -dY, 1.0));
 
@@ -75,8 +87,8 @@ void main() {
         0.0, 0.0, 0.0, 1.0
     ) * vec4(
         a_position.xy,
-        z,
-        1
+        (1.0 + z) * (u_maxTerrainHeight - u_minTerrainHeight) + u_minTerrainHeight,
+        1.0
     );
 
     v_position = vec3(gl_Position.xy, z);
