@@ -5,12 +5,14 @@ import { Controls } from './utils/controls.ts'
 import { getCachedCreatePlane } from './utils/plane.ts'
 import { getFragmentShader, getVertexShader } from './utils/shaders.ts'
 
+const MAX_NUM_NOISES = 16
+
 export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLFormElement) {
   const controls = new Controls(controlsForm, [
     {
       label: 'Plane',
       fields: [
-        { type: 'range', label: 'Subdivisions', name: 'subdivisions', initialValue: 100, min: 1, max: 200, step: 1 },
+        { type: 'range', label: 'Subdivisions', name: 'subdivisions', initialValue: 100, min: 1, max: 255, step: 1 },
         { type: 'range', label: 'Plane Scale X', name: 'planeScaleX', initialValue: 30, min: 1, max: 100, step: 1 },
         { type: 'range', label: 'Plane Scale Y', name: 'planeScaleY', initialValue: 30, min: 1, max: 100, step: 1 },
       ],
@@ -20,6 +22,7 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
       fields: [
         { type: 'range', label: 'Azimuth', name: 'lightAzimuth', initialValue: 0, min: 0, max: 2 * 3.14, step: 0.01 },
         { type: 'range', label: 'Elevation', name: 'lightElevation', initialValue: 3.14 / 4, min: 0, max: 3.14 / 2, step: 0.01 },
+        { type: 'range', label: 'Normal Epsilon', name: 'normalEpsilon', initialValue: -2, min: -5, max: 0, step: 1 },
       ],
     },
     {
@@ -44,13 +47,21 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
     },
     {
       label: 'Noise',
-      fields: [
-        { type: 'range', label: 'Noise position offset X', name: 'posOffsetX', initialValue: 0, min: -1, max: 1, step: 0.01 },
-        { type: 'range', label: 'Noise position offset Y', name: 'posOffsetY', initialValue: 0, min: -1, max: 1, step: 0.01 },
-        { type: 'range', label: 'Noise multiplier X', name: 'noiseMulX', initialValue: 0.2, min: 0, max: 1, step: 0.01 },
-        { type: 'range', label: 'Noise multiplier Y', name: 'noiseMulY', initialValue: 0.2, min: 0, max: 1, step: 0.01 },
-        { type: 'range', label: 'Noise height', name: 'noiseHeight', initialValue: 5, min: 0, max: 10, step: 0.01 },
-      ],
+      fields: Array.from({ length: MAX_NUM_NOISES }).fill(null).flatMap((_, index) => {
+        const noiseOffsetX = 0
+        const noiseOffsetY = 0
+        const noiseFreqX = index === 0 ? 10 : 0
+        const noiseFreqY = index === 0 ? 10 : 0
+        const noiseHeight = index === 0 ? 5 : 0
+
+        return [
+          { type: 'range', label: `Noise ${index + 1} offset X`, name: `noise${index + 1}OffsetX`, initialValue: noiseOffsetX, min: -1, max: 1, step: 0.01 },
+          { type: 'range', label: `Noise ${index + 1} offset Y`, name: `noise${index + 1}OffsetY`, initialValue: noiseOffsetY, min: -1, max: 1, step: 0.01 },
+          { type: 'range', label: `Noise ${index + 1} freq X`, name: `noise${index + 1}FreqX`, initialValue: noiseFreqX, min: 0, max: 20, step: 0.01 },
+          { type: 'range', label: `Noise ${index + 1} freq Y`, name: `noise${index + 1}FreqY`, initialValue: noiseFreqY, min: 0, max: 20, step: 0.01 },
+          { type: 'range', label: `Noise ${index + 1} height`, name: `noise${index + 1}Height`, initialValue: noiseHeight, min: 0, max: 20, step: 0.01 },
+        ]
+      }),
     },
   ] as const)
 
@@ -163,11 +174,7 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
       lightZ,
     )
 
-    artist.setUniform(
-      '1f',
-      'u_noiseHeight',
-      controls.getFloat('noiseHeight', 0.1),
-    )
+    artist.setUniform('1f', 'u_normalEpsilon', 10 ** controls.getFloat('normalEpsilon', -2))
 
     artist.setUniform(
       '3f',
@@ -188,17 +195,19 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
     )
 
     artist.setUniform(
-      '2f',
-      'u_positionOffset',
-      (controls.getFloat('posOffsetX', 0.5) * 2 - 1) * 10,
-      (controls.getFloat('posOffsetY', 0.5) * 2 - 1) * 10,
-    )
-
-    artist.setUniform(
-      '2f',
-      'u_noiseMultiplier',
-      controls.getFloat('noiseMulX', 0.5) * 30,
-      controls.getFloat('noiseMulY', 0.5) * 40,
+      '1fv',
+      'u_noises',
+      new Float32Array(
+        Array.from({ length: MAX_NUM_NOISES }).fill(null).flatMap((_, index) => {
+          return [
+            controls.getFloat(`noise${index + 1}OffsetX`, 0),
+            controls.getFloat(`noise${index + 1}OffsetY`, 0),
+            controls.getFloat(`noise${index + 1}FreqX`, 5),
+            controls.getFloat(`noise${index + 1}FreqY`, 5),
+            controls.getFloat(`noise${index + 1}Height`, 0),
+          ]
+        }),
+      ),
     )
 
     gl.drawElements(primitiveType, indices.length, gl.UNSIGNED_SHORT, arrayOffset)

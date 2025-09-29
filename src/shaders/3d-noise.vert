@@ -6,36 +6,49 @@ out vec3 v_normal;
 
 // @import 2d-noise.glsl
 
+struct NoiseParams {
+    vec2 offset;
+    vec2 frequency;
+    float height;
+};
+
+const int MAX_NUM_NOISES = 16;
+const int NOISE_PARAMS_SIZE = 2 + 2 + 1; // vec2 + vec2 + float
+
+uniform float u_noises[MAX_NUM_NOISES * NOISE_PARAMS_SIZE];
+
+uniform float u_normalEpsilon;
 uniform vec2 u_planeScale;
-uniform vec2 u_noiseMultiplier;
-uniform vec2 u_positionOffset;
 uniform mat4 u_viewProjection;
-uniform float u_noiseHeight;
+
+float createNoiseAtPosition(vec2 pos, NoiseParams params) {
+    return cnoise(
+        vec2(
+            pos.x * params.frequency.x + params.offset.x,
+            pos.y * params.frequency.y + params.offset.y
+        )
+    ) * params.height;
+}
+
+NoiseParams getNoise(int index) {
+    int base = index * NOISE_PARAMS_SIZE;
+    return NoiseParams(
+        vec2(u_noises[base+0], u_noises[base+1]),
+        vec2(u_noises[base+2], u_noises[base+3]),
+        u_noises[base+4]
+    );
+}
 
 float getHeight(vec2 pos) {
-    return (
-        cnoise(
-            vec2(
-                    u_positionOffset.x + pos.x * u_noiseMultiplier.x,
-                    u_positionOffset.y + pos.y * u_noiseMultiplier.y
-                )
-        ) * 0.5 + cnoise(
-            vec2(
-                u_positionOffset.x * 2.0 + pos.x * u_noiseMultiplier.x * 2.0,
-                u_positionOffset.y * 2.0 + pos.y * u_noiseMultiplier.y * 2.0
-            )
-        ) * 0.25 + cnoise(
-            vec2(
-                u_positionOffset.x * 4.0 + pos.x * u_noiseMultiplier.x * 4.0,
-                u_positionOffset.y * 4.0 + pos.y * u_noiseMultiplier.y * 4.0
-            )
-        ) * 0.125 + cnoise(
-            vec2(
-                u_positionOffset.x * 8.0 + pos.x * u_noiseMultiplier.x * 8.0,
-                u_positionOffset.y * 8.0 + pos.y * u_noiseMultiplier.y * 8.0
-                )
-            ) * 0.125
-    ) * u_noiseHeight;
+    float height = 0.0;
+    for (int i = 0; i < MAX_NUM_NOISES; i++) {
+        NoiseParams params = getNoise(i);
+        if (params.frequency.x == 0.0 && params.frequency.y == 0.0) {
+            break;
+        }
+        height += createNoiseAtPosition(pos, params);
+    }
+    return height;
 }
 
 void main() {
@@ -44,10 +57,8 @@ void main() {
 
     float z = getHeight(a_position.xy);
 
-    float epsilon = 0.01;
-
-    float dX = (getHeight(vec2(x + epsilon, y)) - z) / epsilon;
-    float dY = (getHeight(vec2(x, y + epsilon)) - z) / epsilon;
+    float dX = (getHeight(vec2(x + u_normalEpsilon, y)) - z) / u_normalEpsilon;
+    float dY = (getHeight(vec2(x, y + u_normalEpsilon)) - z) / u_normalEpsilon;
 
     vec3 normal = normalize(vec3(-dX, -dY, 1.0));
 

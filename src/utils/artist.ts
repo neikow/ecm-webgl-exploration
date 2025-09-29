@@ -13,6 +13,7 @@ export interface UniformArguments {
   'Matrix2fv': [boolean, mat2]
   'Matrix3fv': [boolean, mat3]
   'Matrix4fv': [boolean, mat4]
+  '1fv': [Float32Array]
 }
 
 export type UniformType = keyof UniformArguments
