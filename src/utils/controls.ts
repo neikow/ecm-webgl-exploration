@@ -165,7 +165,6 @@ export class Controls<T extends readonly ControlFieldSection[]> {
 
       const isRandomized = element.dataset.isRandomized === 'true'
 
-      console.log(isRandomized)
       if (!isRandomized)
         continue
 
