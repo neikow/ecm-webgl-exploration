@@ -1,3 +1,4 @@
+import type { ControlField } from './utils/controls.ts'
 import { mat4 } from 'gl-matrix'
 import { Artist } from './utils/artist.ts'
 import { resizeCanvasToDisplaySize } from './utils/canvas.ts'
@@ -12,40 +13,40 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
     {
       label: 'Plane',
       fields: [
-        { type: 'range', label: 'Subdivisions', name: 'subdivisions', initialValue: 100, min: 1, max: 255, step: 1 },
-        { type: 'range', label: 'Plane Scale X', name: 'planeScaleX', initialValue: 30, min: 1, max: 100, step: 1 },
-        { type: 'range', label: 'Plane Scale Y', name: 'planeScaleY', initialValue: 30, min: 1, max: 100, step: 1 },
+        { type: 'range', label: 'Subdivisions', name: 'subdivisions', initialValue: 100, min: 1, max: 255, step: 1, isRandomized: false },
+        { type: 'range', label: 'Plane Scale X', name: 'planeScaleX', initialValue: 30, min: 1, max: 100, step: 1, isRandomized: false },
+        { type: 'range', label: 'Plane Scale Y', name: 'planeScaleY', initialValue: 30, min: 1, max: 100, step: 1, isRandomized: false },
       ],
     },
     {
       label: 'Light',
       fields: [
-        { type: 'range', label: 'Azimuth', name: 'lightAzimuth', initialValue: 0, min: 0, max: 2 * 3.14, step: 0.01 },
-        { type: 'range', label: 'Elevation', name: 'lightElevation', initialValue: 3.14 / 4, min: 0, max: 3.14 / 2, step: 0.01 },
-        { type: 'range', label: 'Normal Epsilon', name: 'normalEpsilon', initialValue: -2, min: -5, max: 0, step: 1 },
+        { type: 'range', label: 'Azimuth', name: 'lightAzimuth', initialValue: 0, min: 0, max: 2 * 3.14, step: 0.01, isRandomized: true },
+        { type: 'range', label: 'Elevation', name: 'lightElevation', initialValue: 3.14 / 4, min: 0, max: 3.14 / 2, step: 0.01, isRandomized: true },
+        { type: 'range', label: 'Normal Epsilon', name: 'normalEpsilon', initialValue: -2, min: -5, max: 0, step: 1, isRandomized: true },
       ],
     },
     {
       label: 'Camera',
       fields: [
-        { type: 'range', label: 'Field of View (°)', name: 'fov', initialValue: 90, min: 0.5, max: 180, step: 0.5 },
-        { type: 'range', label: 'Near plane', name: 'near', initialValue: 5, min: 0.1, max: 10, step: 0.1 },
-        { type: 'range', label: 'Far plane', name: 'far', initialValue: 100, min: 1, max: 1000, step: 1 },
-        { type: 'range', label: 'Camera X position', name: 'camX', initialValue: 0, min: -50, max: 50, step: 0.1 },
-        { type: 'range', label: 'Camera Y position', name: 'camY', initialValue: -10, min: -50, max: 50, step: 0.1 },
-        { type: 'range', label: 'Camera Z position', name: 'camZ', initialValue: 50, min: -200, max: 200, step: 0.1 },
-        { type: 'range', label: 'Camera Angle (up-down)', name: 'camAngleX', initialValue: Math.PI / 4, min: -Math.PI, max: Math.PI, step: 0.01 },
-        { type: 'range', label: 'Camera Angle (left-right)', name: 'camAngleZ', initialValue: Math.PI / 8, min: -Math.PI, max: Math.PI, step: 0.01 },
+        { type: 'range', label: 'Field of View (°)', name: 'fov', initialValue: 90, min: 0.5, max: 180, step: 0.5, isRandomized: false },
+        { type: 'range', label: 'Near plane', name: 'near', initialValue: 5, min: 0.1, max: 10, step: 0.1, isRandomized: false },
+        { type: 'range', label: 'Far plane', name: 'far', initialValue: 100, min: 1, max: 1000, step: 1, isRandomized: false },
+        { type: 'range', label: 'Camera X position', name: 'camX', initialValue: 0, min: -50, max: 50, step: 0.1, isRandomized: false },
+        { type: 'range', label: 'Camera Y position', name: 'camY', initialValue: -10, min: -50, max: 50, step: 0.1, isRandomized: false },
+        { type: 'range', label: 'Camera Z position', name: 'camZ', initialValue: 50, min: -200, max: 200, step: 0.1, isRandomized: false },
+        { type: 'range', label: 'Camera Angle (up-down)', name: 'camAngleX', initialValue: Math.PI / 4, min: -Math.PI, max: Math.PI, step: 0.01, isRandomized: false },
+        { type: 'range', label: 'Camera Angle (left-right)', name: 'camAngleZ', initialValue: Math.PI / 8, min: -Math.PI, max: Math.PI, step: 0.01, isRandomized: false },
       ],
     },
     {
       label: 'Terrain',
       fields: [
-        { type: 'range', label: 'Min height', name: 'minTerrainHeight', initialValue: 0, min: 0, max: 10, step: 0.1 },
-        { type: 'range', label: 'Max height', name: 'maxTerrainHeight', initialValue: 2, min: 0, max: 20, step: 0.1 },
+        { type: 'range', label: 'Min height', name: 'minTerrainHeight', initialValue: 0, min: 0, max: 10, step: 0.1, isRandomized: true },
+        { type: 'range', label: 'Max height', name: 'maxTerrainHeight', initialValue: 2, min: 0, max: 20, step: 0.1, isRandomized: true },
         { type: 'group', flex: 'row', fields: [
-          { type: 'color', label: 'Color 1', name: 'color1', initialValue: '#23af3a' },
-          { type: 'color', label: 'Color 2', name: 'color2', initialValue: '#198660' },
+          { type: 'color', label: 'Color 1', name: 'color1', initialValue: '#23af3a', isRandomized: true },
+          { type: 'color', label: 'Color 2', name: 'color2', initialValue: '#198660', isRandomized: true },
         ] },
       ],
     },
@@ -59,12 +60,12 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
         const noiseContribution = index === 0 ? 5 : 0
 
         return [
-          { type: 'range', label: `Noise ${index + 1} offset X`, name: `noise${index + 1}OffsetX`, initialValue: noiseOffsetX, min: -1, max: 1, step: 0.01 },
-          { type: 'range', label: `Noise ${index + 1} offset Y`, name: `noise${index + 1}OffsetY`, initialValue: noiseOffsetY, min: -1, max: 1, step: 0.01 },
-          { type: 'range', label: `Noise ${index + 1} freq X`, name: `noise${index + 1}FreqX`, initialValue: noiseFreqX, min: 0, max: 20, step: 0.01 },
-          { type: 'range', label: `Noise ${index + 1} freq Y`, name: `noise${index + 1}FreqY`, initialValue: noiseFreqY, min: 0, max: 20, step: 0.01 },
-          { type: 'range', label: `Noise ${index + 1} contribution`, name: `noise${index + 1}Contribution`, initialValue: noiseContribution, min: 0, max: 20, step: 0.01 },
-        ]
+          { type: 'range', label: `Noise ${index + 1} offset X`, name: `noise${index + 1}OffsetX`, initialValue: noiseOffsetX, min: -1, max: 1, step: 0.01, isRandomized: true },
+          { type: 'range', label: `Noise ${index + 1} offset Y`, name: `noise${index + 1}OffsetY`, initialValue: noiseOffsetY, min: -1, max: 1, step: 0.01, isRandomized: true },
+          { type: 'range', label: `Noise ${index + 1} freq X`, name: `noise${index + 1}FreqX`, initialValue: noiseFreqX, min: 0, max: 20, step: 0.01, isRandomized: true },
+          { type: 'range', label: `Noise ${index + 1} freq Y`, name: `noise${index + 1}FreqY`, initialValue: noiseFreqY, min: 0, max: 20, step: 0.01, isRandomized: true },
+          { type: 'range', label: `Noise ${index + 1} contribution`, name: `noise${index + 1}Contribution`, initialValue: noiseContribution, min: 0, max: 20, step: 0.01, isRandomized: true },
+        ] satisfies ControlField[]
       }),
     },
   ] as const)

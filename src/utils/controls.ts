@@ -7,6 +7,7 @@ export interface ControlFieldBase {
   type: string
   name: string
   label: string
+  isRandomized: boolean
 }
 
 export interface ControlFieldRange extends ControlFieldBase {
@@ -132,10 +133,10 @@ export class Controls<T extends readonly ControlFieldSection[]> {
     const initialValue = localStorage.getItem(`control-${field.name}`) ?? field.initialValue.toString()
 
     if (field.type === 'range') {
-      return createRangeSlider(field.name, field.label, initialValue, field.min, field.max, field.step)
+      return createRangeSlider(field.name, field.label, initialValue, field.min, field.max, field.step, field.isRandomized)
     }
     else if (field.type === 'color') {
-      return createColorPicker(field.name, field.label, initialValue)
+      return createColorPicker(field.name, field.label, initialValue, field.isRandomized)
     }
     else {
       throw new Error('Unsupported field type', { cause: 'unknown field type' })
@@ -162,6 +163,12 @@ export class Controls<T extends readonly ControlFieldSection[]> {
     for (let i = 0; i < elements.length; i++) {
       const element = elements.item(i) as HTMLInputElement
 
+      const isRandomized = element.dataset.isRandomized === 'true'
+
+      console.log(isRandomized)
+      if (!isRandomized)
+        continue
+
       if (!element.name)
         continue
 
@@ -171,8 +178,7 @@ export class Controls<T extends readonly ControlFieldSection[]> {
         const step = Number.parseFloat(element.step) || 0.01
         const steps = Math.floor((max - min) / step)
         const randomStep = Math.floor(Math.random() * (steps + 1))
-
-        const newValue = Number.parseFloat(element.value) + (min + randomStep * step) * 0.1 * (Math.random() < 0.5 ? -1 : 1)
+        const newValue = min + randomStep * step
 
         element.value = newValue.toString()
       }
@@ -235,23 +241,23 @@ export class Controls<T extends readonly ControlFieldSection[]> {
   }
 }
 
-export function createRangeSlider(name: string, label: string, initialValue = '0.5', min = 0, max = 1, step = 0.01): string {
+export function createRangeSlider(name: string, label: string, initialValue = '0.5', min = 0, max = 1, step = 0.01, isRandomized: boolean = false): string {
   return `
     <div class='fieldset'>
       <label for='${name}' class='fieldset-label'>
         ${label}
       </label>
-      <input id='${name}' type='range' name='${name}' value='${initialValue}' min='${min}' max='${max}' step='${step}' />
+      <input id='${name}' type='range' name='${name}' value='${initialValue}' min='${min}' max='${max}' step='${step}' data-is-randomized='${isRandomized}' />
     </div>`
 }
 
-export function createColorPicker(name: string, label: string, initialValue = '#000000'): string {
+export function createColorPicker(name: string, label: string, initialValue = '#000000', isRandomized: boolean = false): string {
   return `
     <div class='fieldset'>
       <label for='${name}' class='fieldset-label'>
         ${label}
       </label>
-      <input id='${name}' value='${initialValue}' type='color' name='${name}' />
+      <input id='${name}' value='${initialValue}' type='color' name='${name}' data-is-randomized='${isRandomized}' />
     </div>
     `
 }
