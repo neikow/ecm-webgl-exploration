@@ -12,7 +12,7 @@ struct NoiseParams {
     float contribution;
 };
 
-const int MAX_NUM_NOISES = 16;
+const int MAX_NUM_NOISES = 8;
 const int NOISE_PARAMS_SIZE = 2 + 2 + 1; // vec2 + vec2 + float
 
 uniform float u_noises[MAX_NUM_NOISES * NOISE_PARAMS_SIZE];

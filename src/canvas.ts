@@ -5,7 +5,7 @@ import { Controls } from './utils/controls.ts'
 import { getCachedCreatePlane } from './utils/plane.ts'
 import { getFragmentShader, getVertexShader } from './utils/shaders.ts'
 
-const MAX_NUM_NOISES = 16
+const MAX_NUM_NOISES = 8
 
 export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLFormElement) {
   const controls = new Controls(controlsForm, [
@@ -30,12 +30,12 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
       fields: [
         { type: 'range', label: 'Field of View (°)', name: 'fov', initialValue: 90, min: 0.5, max: 180, step: 0.5 },
         { type: 'range', label: 'Near plane', name: 'near', initialValue: 5, min: 0.1, max: 10, step: 0.1 },
-        { type: 'range', label: 'Far plane', name: 'far', initialValue: 30, min: 1, max: 1000, step: 1 },
-        { type: 'range', label: 'Camera X position', name: 'camX', initialValue: 5, min: -10, max: 50, step: 0.1 },
-        { type: 'range', label: 'Camera Y position', name: 'camY', initialValue: 5, min: -10, max: 50, step: 0.1 },
-        { type: 'range', label: 'Camera Z position', name: 'camZ', initialValue: 10, min: -20, max: 200, step: 0.1 },
-        { type: 'range', label: 'Camera Angle (up-down)', name: 'camAngleX', initialValue: 0, min: -Math.PI, max: Math.PI, step: 0.01 },
-        { type: 'range', label: 'Camera Angle (left-right)', name: 'camAngleZ', initialValue: 0, min: -Math.PI, max: Math.PI, step: 0.01 },
+        { type: 'range', label: 'Far plane', name: 'far', initialValue: 100, min: 1, max: 1000, step: 1 },
+        { type: 'range', label: 'Camera X position', name: 'camX', initialValue: 0, min: -50, max: 50, step: 0.1 },
+        { type: 'range', label: 'Camera Y position', name: 'camY', initialValue: -10, min: -50, max: 50, step: 0.1 },
+        { type: 'range', label: 'Camera Z position', name: 'camZ', initialValue: 50, min: -200, max: 200, step: 0.1 },
+        { type: 'range', label: 'Camera Angle (up-down)', name: 'camAngleX', initialValue: Math.PI / 4, min: -Math.PI, max: Math.PI, step: 0.01 },
+        { type: 'range', label: 'Camera Angle (left-right)', name: 'camAngleZ', initialValue: Math.PI / 8, min: -Math.PI, max: Math.PI, step: 0.01 },
       ],
     },
     {
