@@ -30,10 +30,12 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
       fields: [
         { type: 'range', label: 'Field of View (°)', name: 'fov', initialValue: 90, min: 0.5, max: 180, step: 0.5 },
         { type: 'range', label: 'Near plane', name: 'near', initialValue: 5, min: 0.1, max: 10, step: 0.1 },
-        { type: 'range', label: 'Far plane', name: 'far', initialValue: 30, min: 1, max: 100, step: 1 },
-        { type: 'range', label: 'Camera X position', name: 'camX', initialValue: 5, min: -10, max: 20, step: 0.1 },
-        { type: 'range', label: 'Camera Y position', name: 'camY', initialValue: 5, min: -10, max: 20, step: 0.1 },
-        { type: 'range', label: 'Camera Z position', name: 'camZ', initialValue: 10, min: -20, max: 80, step: 0.1 },
+        { type: 'range', label: 'Far plane', name: 'far', initialValue: 30, min: 1, max: 1000, step: 1 },
+        { type: 'range', label: 'Camera X position', name: 'camX', initialValue: 5, min: -10, max: 50, step: 0.1 },
+        { type: 'range', label: 'Camera Y position', name: 'camY', initialValue: 5, min: -10, max: 50, step: 0.1 },
+        { type: 'range', label: 'Camera Z position', name: 'camZ', initialValue: 10, min: -20, max: 200, step: 0.1 },
+        { type: 'range', label: 'Camera Angle (up-down)', name: 'camAngleX', initialValue: 0, min: -Math.PI, max: Math.PI, step: 0.01 },
+        { type: 'range', label: 'Camera Angle (left-right)', name: 'camAngleZ', initialValue: 0, min: -Math.PI, max: Math.PI, step: 0.01 },
       ],
     },
     {
@@ -131,19 +133,21 @@ export async function setupCanvas(canvas: HTMLCanvasElement, controlsForm: HTMLF
     const aspect = gl.canvas.width / gl.canvas.height
     const near = controls.getFloat('near', 0.1)
     const far = controls.getFloat('far', 100)
-    const eyePosition = [
+    const cameraPosition = [
       controls.getFloat('camX', 0),
       controls.getFloat('camY', 0),
       controls.getFloat('camZ', 5),
     ]
-    const target = [0, 0, 0]
-    const up = [0, 0, 1]
+    const cameraAngleX = controls.getFloat('camAngleX', 0)
+    const cameraAngleZ = controls.getFloat('camAngleZ', 0)
 
     const projection = mat4.create()
     mat4.perspective(projection, fov, aspect, near, far)
 
     const view = mat4.create()
-    mat4.lookAt(view, eyePosition, target, up)
+    mat4.translate(view, view, [-cameraPosition[0], -cameraPosition[1], -cameraPosition[2]])
+    mat4.rotateX(view, view, -cameraAngleX)
+    mat4.rotateZ(view, view, -cameraAngleZ)
 
     const viewProjection = mat4.create()
     mat4.multiply(viewProjection, projection, view)
