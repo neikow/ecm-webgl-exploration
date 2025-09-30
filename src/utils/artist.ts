@@ -18,28 +18,61 @@ export interface UniformArguments {
 
 export type UniformType = keyof UniformArguments
 
-export class Artist {
+export interface ShaderDefinition {
+  vertex: string
+  fragment: string
+}
+
+export class Artist<ProgramNames extends string> {
   gl: WebGL2RenderingContext
-  program: WebGLProgram
+  programs: Record<ProgramNames, WebGLProgram>
 
-  private uniformLocations: Map<string, WebGLUniformLocation>
+  private readonly uniformLocations: Record<ProgramNames, Map<string, WebGLUniformLocation>>
 
-  constructor(gl: WebGL2RenderingContext, vertexShaderSource: string, fragmentShaderSource: string) {
+  currentProgramName: ProgramNames | null = null
+
+  constructor(gl: WebGL2RenderingContext, programDefinitions: Record<ProgramNames, ShaderDefinition>) {
     this.gl = gl
-    this.program = createProgram(
-      gl,
-      createVertexShader(gl, vertexShaderSource),
-      createFragmentShader(gl, fragmentShaderSource),
-    )!
-    this.uniformLocations = new Map()
+    this.programs = Object.fromEntries(
+      Object.entries<ShaderDefinition>(programDefinitions).map(([name, def]) => {
+        return [name, createProgram(
+          gl,
+          createVertexShader(gl, def.vertex),
+          createFragmentShader(gl, def.fragment),
+        )!]
+      }),
+    ) as Record<ProgramNames, WebGLProgram>
+    this.uniformLocations = Object.fromEntries(
+      Object.keys(programDefinitions).map(name => [name, new Map<string, WebGLUniformLocation>()]),
+    ) as Record<ProgramNames, Map<string, WebGLUniformLocation>>
+  }
+
+  useProgram(name: ProgramNames) {
+    if (this.currentProgramName !== name) {
+      this.gl.useProgram(this.programs[name])
+      this.currentProgramName = name
+    }
+  }
+
+  get currentProgram(): WebGLProgram {
+    if (!this.currentProgramName) {
+      throw new Error('No program is currently in use. Call useProgram(name) first.')
+    }
+    return this.programs[this.currentProgramName]
   }
 
   private createOrGetUniformLocation(name: string): WebGLUniformLocation {
-    if (this.uniformLocations.has(name)) {
-      return this.uniformLocations.get(name)!
+    if (!this.currentProgramName) {
+      throw new Error('No program is currently in use. Call useProgram(name) first.')
     }
-    const location = this.gl.getUniformLocation(this.program, name)!
-    this.uniformLocations.set(name, location)
+
+    const programLocations = this.uniformLocations[this.currentProgramName]
+
+    if (programLocations.has(name)) {
+      return programLocations.get(name)!
+    }
+    const location = this.gl.getUniformLocation(this.currentProgram, name)!
+    programLocations.set(name, location)
     return location
   }
 

@@ -3,6 +3,7 @@
 in vec3 a_position;
 out vec3 v_position;
 out vec3 v_normal;
+out vec4 v_projectedTexcoord;
 
 // @import 2d-noise.glsl
 
@@ -22,7 +23,11 @@ uniform float u_minTerrainHeight;
 
 uniform float u_normalEpsilon;
 uniform vec2 u_planeScale;
-uniform mat4 u_viewProjection;
+
+uniform mat4 u_viewMatrix;
+uniform mat4 u_projectionMatrix;
+
+uniform mat4 u_textureMatrix;
 
 float createNoiseAtPosition(vec2 pos, NoiseParams params, float totalContribution) {
     return cnoise(
@@ -80,7 +85,7 @@ void main() {
         normal.z
     ));
 
-    gl_Position = u_viewProjection * mat4(
+    vec4 worldPosition = mat4(
         u_planeScale.x, 0.0, 0.0, 0.0,
         0.0, u_planeScale.y, 0.0, 0.0,
         0.0, 0.0, 1.0, 0.0,
@@ -91,6 +96,9 @@ void main() {
         1.0
     );
 
+    gl_Position =  u_projectionMatrix * u_viewMatrix * worldPosition;
+
+    v_projectedTexcoord = u_textureMatrix * worldPosition;
     v_position = vec3(gl_Position.xy, z);
     v_normal = scaledNormal;
 }
